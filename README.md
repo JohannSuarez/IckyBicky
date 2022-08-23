@@ -1,7 +1,7 @@
 # IckyBicky
 A web scraper for checking the earliest ICBC driving exam appointment you can book for.
 
-The wait list for a driving test provided by RCBC is usually several months long.
+The wait list for a driving test provided by ICBC is usually several months long.
 This incentivizes rescheduling to nearer dates whenever possible in case someone cancels
 their appointment, potentially saving you months of waiting.
 
