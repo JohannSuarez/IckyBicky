@@ -9,6 +9,10 @@ Using Selenium, we can automate the process of logging into our ICBC accounts an
 earliest possible date we can book. If the acquired date is earlier than our originally booked
 appointment, this means there is a new slot available that we can take.
 
+# Configuration
+Refer to the provded .env_example as reference for populating the environment variables
+with your private information.
+
 There are eight private variables required for running the script.
   - ICBC_LOGIN_URL
   - LOGIN_NAME
