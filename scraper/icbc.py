@@ -4,6 +4,13 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 
+"""
+TO-DO:
+Let a systemd service call this every five minutes.
+
+If an earlier appointment is found, check if user is notified already within this day.
+If not, message the user and tick a boolean called is_notified_today.
+"""
 
 def check_icbc(icbc_login_url: str,
                login_name: str,
@@ -58,7 +65,6 @@ def check_icbc(icbc_login_url: str,
         # Letting suggestions load
         time.sleep(1.0)
         # Select the first suggestion
-        #overlay = driver.find_element(By.CLASS_NAME, "cdk-overlay-pane")
         first_result = driver.find_element(By.ID, "mat-option-20")
         first_result.click()
 
@@ -82,4 +88,3 @@ def check_icbc(icbc_login_url: str,
         driver.close()
 
     return date_result
-
