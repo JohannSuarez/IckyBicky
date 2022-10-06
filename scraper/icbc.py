@@ -60,13 +60,18 @@ def check_icbc(icbc_login_url: str,
         # Inputting a partial search in the form so that suggestions pop up
         location = driver.find_element(By.ID, "mat-input-3")
         location.clear()
-        location.send_keys("Nanaimo, ")
+        location.send_keys("Nanaimo")
+        #time.sleep(0.2)
+        #location.send_keys("BC")
 
         # Letting suggestions load
-        time.sleep(1.0)
+        time.sleep(2.0)
         # Select the first suggestion
-        first_result = driver.find_element(By.ID, "mat-option-20")
-        first_result.click()
+
+        first_result = driver.find_elements(By.CLASS_NAME, "mat-option")
+        #first_result = driver.find_elements(By.ID, "mat-option")
+        first_result[0].click()
+
 
         # Click the "Search" button.
         search_button = driver.find_element(By.CLASS_NAME, "mat-raised-button")
@@ -74,15 +79,24 @@ def check_icbc(icbc_login_url: str,
 
         # Clicking the closest location.
         nearest_location = driver.find_element(By.CLASS_NAME, "appointment-location-wrapper")
+        nearest_location.find_element(By.CLASS_NAME, "department-title")
+        print(nearest_location.text)
+        if "Nanaimo" not in nearest_location.text:
+            print(nearest_location.text)
+            print("Wrong Venue")
+            raise Error("Wrong venue.")
+
         nearest_location.click()
 
         # Letting the schedules load.
         WebDriverWait(driver, 3).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "date-title"))
             )
+
         closest_date = driver.find_element(By.CLASS_NAME, "date-title")
         date_result = closest_date.text
     except Exception:
+        print(Exception)
         print("Website issue")
     finally:
         driver.close()

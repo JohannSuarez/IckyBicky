@@ -6,14 +6,28 @@ from dateutil.parser import parse
 from dotenv import dotenv_values
 
 from scraper.icbc import check_icbc
-from sms.send_sms import text
+from sms.send_sms import text, call
 
 logging.basicConfig(filename="log.txt", level=logging.DEBUG)
 config = dotenv_values(".env")
 
+
+def get_last_checked_date() -> str:
+    file1 = open("last_checked_date.txt","r")
+    last_date = file1.read().splitlines()
+    file1.close()
+    return last_date[0]
+
+def write_last_checked_date(date: str) -> str:
+    file1 = open("last_checked_date.txt","w")
+    file1.write(date)
+    file1.close()
+    pass
+
+
 def main():
     logging.debug("Starting...")
-    my_appointment_date = datetime.strptime("11/22/2022", "%m/%d/%Y")
+    my_appointment_date = datetime.strptime("1/30/2023", "%m/%d/%Y")
     start_time = time.time()
 
     date_res = None
@@ -33,34 +47,62 @@ def main():
 
     string_version = date_res.strftime('%m/%d/%Y')
     date_res_month = date_res.strftime('%m')
-    print(date_res_month)
-    print(type(date_res_month))
 
-    desired_months = ['9', '10', '11']
+    desired_months = ['12', '1']
 
+    # If a prior scan was done, we keep track of the last scan date
+    # so we don't end up spamming ourselves with calls or texts.
+    print(get_last_checked_date())
+
+    #last_checked_date = datetime.strptime("1/30/2023", "%m/%d/%Y")
+    last_checked_date = datetime.strptime(get_last_checked_date(), "%m/%d/%Y")
+    print(last_checked_date)
 
     if date_res_month in desired_months:
-        logging.debug("Really appointment date found...")
-        body= f"REALLY EARLY APPOINTMENT DAY FOUND: {string_version}"
-        print(body)
-        text(config["TWILIO_ACCOUNT_SID"],
-             config["TWILIO_ACCOUNT_AUTH_TOKEN"],
-             config["TWILIO_SMS_FROM"],
-             config["SMS_TO"],
-             body)
-        return
+        if date_res_month == '12':
+            body= f"DECEMBER APPOINTMENT DAY FOUND: {string_version}"
+            call(config["TWILIO_ACCOUNT_SID"],
+                 config["TWILIO_ACCOUNT_AUTH_TOKEN"],
+                 config["TWILIO_SMS_FROM"],
+                 config["SMS_TO"],
+                 body)
+            return
+        else:
+            # Something VERY early
+            logging.debug("Really appointment date found...")
+            body= f"REALLY EARLY APPOINTMENT DAY FOUND: {string_version}"
+            print(body)
+            '''
+            text(config["TWILIO_ACCOUNT_SID"],
+                 config["TWILIO_ACCOUNT_AUTH_TOKEN"],
+                 config["TWILIO_SMS_FROM"],
+                 config["SMS_TO"],
+                 body)
+            '''
+
+            return
 
 
+    # Anything earlier than appointment date.
     if date_res <= my_appointment_date:
-        body= f"EARLIER APPOINTMENT DAY FOUND: {string_version}"
-        print(body)
-        text(config["TWILIO_ACCOUNT_SID"],
-             config["TWILIO_ACCOUNT_AUTH_TOKEN"],
-             config["TWILIO_SMS_FROM"],
-             config["SMS_TO"],
-             body)
+        if not date_res == last_checked_date:
+            body= f"EARLIER APPOINTMENT DAY FOUND: {string_version}"
+            print(body)
+            '''
+            text(config["TWILIO_ACCOUNT_SID"],
+                 config["TWILIO_ACCOUNT_AUTH_TOKEN"],
+                 config["TWILIO_SMS_FROM"],
+                 config["SMS_TO"],
+                 body)
+            '''
+
+            write_last_checked_date(string_version)
+            # Overwrite last checked_date
+        else:
+            print("Already notified of this date.")
     else:
         print(f"The earliest is at {string_version}")
 
 if __name__ == "__main__":
+    #get_last_checked_date()
     main()
