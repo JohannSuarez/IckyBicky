@@ -1,3 +1,4 @@
+import logging
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -61,8 +62,6 @@ def check_icbc(icbc_login_url: str,
         location = driver.find_element(By.ID, "mat-input-3")
         location.clear()
         location.send_keys("Nanaimo")
-        #time.sleep(0.2)
-        #location.send_keys("BC")
 
         # Letting suggestions load
         time.sleep(2.0)
@@ -80,10 +79,10 @@ def check_icbc(icbc_login_url: str,
         # Clicking the closest location.
         nearest_location = driver.find_element(By.CLASS_NAME, "appointment-location-wrapper")
         nearest_location.find_element(By.CLASS_NAME, "department-title")
-        print(nearest_location.text)
+        logging.info(nearest_location.text)
         if "Nanaimo" not in nearest_location.text:
             print(nearest_location.text)
-            print("Wrong Venue")
+            logging.info("Wrong venue.")
             raise Error("Wrong venue.")
 
         nearest_location.click()
@@ -93,11 +92,12 @@ def check_icbc(icbc_login_url: str,
                 EC.presence_of_element_located((By.CLASS_NAME, "date-title"))
             )
 
-        closest_date = driver.find_element(By.CLASS_NAME, "date-title")
-        date_result = closest_date.text
+        date_list = driver.find_elements(By.CLASS_NAME, "date-title")
+        date_list = [date.text for date in date_list]
+
+        return date_list
     except Exception:
-        print(Exception)
-        print("Website issue")
+        logging.error("Website element issue")
     finally:
         driver.close()
 
